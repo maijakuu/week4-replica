@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 4: Read-only replica</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <h1>Week 4: Read-only replica</h1>
+    <p>
+      This page displays the visitor counter from server B's local
+      replicated database. Loading this page does not increment the counter.
+    </p>
+    <p>
+      Visit <a href="http://95.217.237.75/viikko2/">server A's Week 2 page</a>
+      to increment the counter.
+    </p>
+    <div class="counter" aria-label="Replicated page-load counter">
+      <span class="counter__value">–</span>
+    </div>
+    <p id="counter-status" role="status" aria-live="polite"></p>
+  </main>
+  <script src="app.js" defer></script>
+</body>
+</html>
