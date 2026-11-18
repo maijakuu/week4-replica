@@ -9,18 +9,93 @@
 <body>
   <main class="page">
     <h1>Week 4: Read-only replica</h1>
+
     <p>
       This page displays the visitor counter from server B's local
-      replicated database. Loading this page does not increment the counter.
+      MySQL replica. Loading this page does not increment the counter.
     </p>
-    <p>
-      Visit <a href="http://95.217.237.75/viikko2/">server A's Week 2 page</a>
-      to increment the counter.
-    </p>
+
     <div class="counter" aria-label="Replicated page-load counter">
       <span class="counter__value">–</span>
     </div>
     <p id="counter-status" role="status" aria-live="polite"></p>
+
+    <nav aria-label="Project links">
+      <a href="http://95.217.237.75/viikko2/">Server A: Week 2 counter</a>
+      <a href="http://86.50.231.80/viikko4/">Server B: Week 4 replica</a>
+      <a href="https://github.com/maijakuu/week4-replica">GitHub repository</a>
+    </nav>
+
+    <details>
+      <summary>Creating server B</summary>
+      <p>
+        Instead of creating B from a snapshot, I used a separate Ubuntu
+        server. The original server (server A) is hosted elsewhere and server B is hosted in cPouta, so snapshot was not possible.
+	The two servers are connected to each other via SSH. I installed Nginx and MySQL, copied the Week 2 frontend
+        and a consistent database dump from A, and recreated the required
+        settings. I then made a read-only backend and page for B.
+      </p>
+    </details>
+
+    <details>
+      <summary>Storage and backups</summary>
+      <p>
+        On A, the websites are stored in /var/www/viikko1,
+        /var/www/viikko2 and /var/www/viikko3. The required
+        /var/www/html directory and the three website directories are
+        included in timestamped backups. B serves this page from
+        /var/www/viikko4.
+      </p>
+      <p>
+        A cron job on A sends website files to B hourly over SSH.
+        Backups are stored outside the web directory in
+        /home/sitebackup/backups. Each run records success or failure
+        in a log on A.
+      </p>
+    </details>
+
+    <details>
+      <summary>Replication and access</summary>
+      <p>
+        MySQL continuously replicates the application database from A
+        to B over an encrypted connection. A dedicated replication
+        account is restricted to B's address. B's application uses a
+        separate local database account with SELECT permission only,
+        and B's database is configured as read-only.
+      </p>
+      <p>
+        The backup account on B owns the private backup directory and
+        archives. A dedicated Linux account runs B's application, and
+        its database credentials are stored outside the web directory.
+        Replication is not a substitute for historical backups: unwanted
+        changes on A can also be replicated to B.
+      </p>
+    </details>
+
+    <details>
+      <summary>Tests</summary>
+      <ul>
+        <li>Both counter pages were accessible in a browser.</li>
+        <li>After A's counter increased, B displayed the updated value.</li>
+        <li>Three reloads of B left the counter unchanged at 105.</li>
+        <li>Both MySQL replication threads reported running with no errors.</li>
+        <li>A manually restored test file matched the original SHA-256 checksum.</li>
+        <li>Two scheduled backup runs and the final reboot test are pending.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>What I learned</summary>
+      <p>
+        This task was way more complicated than I anticipated and I had to rely heavily to the help of AI.
+The manual installation of everything was abdolutely terrible and getting the permissions up 
+for the database on server B was rather complicated and I had to go through it several times to understand what was going on. 
+
+In addition to this, I did most of the work and progress directly on server, 
+and set up the git repo only after everything was already basically done, so I'm glad either one of the servers had 
+any outages during this process.
+      </p>
+    </details>
   </main>
   <script src="app.js" defer></script>
 </body>
